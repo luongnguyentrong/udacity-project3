@@ -46,7 +46,7 @@ resource "aws_iam_role" "eks_node_cluster_role" {
 
 resource "aws_iam_role_policy_attachment" "cluster_AmazonEKSCloudwatchPolicy" {
   role       = aws_iam_role.eks_node_cluster_role.name
-  policy_arn = aws_iam_policy.eks_cluster_role_cloudwatch_policy.arn
+  policy_arn = data.aws_iam_policy.eks_cluster_role_cloudwatch_policy.arn
 }
 
 resource "aws_iam_role_policy_attachment" "node_AmazonEKSWorkerNodePolicy" {
@@ -70,32 +70,36 @@ resource "aws_iam_role_policy_attachment" "node_CloudWatchAgentServerPolicy" {
 }
 
 resource "aws_iam_role_policy_attachment" "node_harmony_policy_attachment" {
-  policy_arn = aws_iam_policy.eks_node_instance_policy.arn
+  policy_arn = data.aws_iam_policy.eks_node_instance_policy.arn
   role       = aws_iam_role.eks_node_cluster_role.name
 }
 
 # ------ Auto Scaling ------
 
-data "aws_iam_policy_document" "k8s_auto_scaling" {
-  statement {
-    actions = [
-      "autoscaling:DescribeAutoScalingGroups",
-      "autoscaling:DescribeAutoScalingInstances",
-      "autoscaling:DescribeLaunchConfigurations",
-      "autoscaling:DescribeTags",
-      "autoscaling:SetDesiredCapacity",
-      "autoscaling:TerminateInstanceInAutoScalingGroup",
-      "ec2:DescribeLaunchTemplateVersions"
-    ]
+# data "aws_iam_policy_document" "k8s_auto_scaling" {
+#   statement {
+#     actions = [
+#       "autoscaling:DescribeAutoScalingGroups",
+#       "autoscaling:DescribeAutoScalingInstances",
+#       "autoscaling:DescribeLaunchConfigurations",
+#       "autoscaling:DescribeTags",
+#       "autoscaling:SetDesiredCapacity",
+#       "autoscaling:TerminateInstanceInAutoScalingGroup",
+#       "ec2:DescribeLaunchTemplateVersions"
+#     ]
 
-    resources = [
-      "*"
-    ]
-  }
-}
+#     resources = [
+#       "*"
+#     ]
+#   }
+# }
 
-resource "aws_iam_policy" "k8s_auto_scaling" {
-  name   = "${var.name}-k8s-autoscale"
-  path   = "/"
-  policy = data.aws_iam_policy_document.k8s_auto_scaling.json
+# resource "aws_iam_policy" "k8s_auto_scaling" {
+#   name   = "${var.name}-k8s-autoscale"
+#   path   = "/"
+#   policy = data.aws_iam_policy_document.k8s_auto_scaling.json
+# }
+
+data "aws_iam_policy" "k8s_auto_scaling" {
+  arn = "arn:aws:iam::445777971181:policy/udacity-k8s-autoscale"
 }
